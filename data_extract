@@ -97,7 +97,7 @@ def call_StockChart(code, data_count, start_date):
     obj_StockChart.SetInputValue(4, data_count) #ulong 요청갯수
     #0: 날짜
     #5: 종가
-    obj_StockChart.SetInputValue(5, [0,2,5,8,16,17,20,21]) #long list 필드 배열 [날짜, 시가, 종가, 거래량, 외국인현보유수량, 외국인현보유비율,기관순매수, 기관누적순매수]
+    obj_StockChart.SetInputValue(5, [0,2,3,4,5,8,16,17,20,21]) #long list 필드 배열 [날짜, 시가, 종가, 거래량, 외국인현보유수량, 외국인현보유비율,기관순매수, 기관누적순매수]
 
     start_flag = 0
     cnt = 0
@@ -123,12 +123,14 @@ def call_StockChart(code, data_count, start_date):
             item = {}
             item['날짜'] = obj_StockChart.GetDataValue(0, i)
             item['시가'] = obj_StockChart.GetDataValue(1, i)
-            item['종가'] = obj_StockChart.GetDataValue(2, i)
-            item['거래량'] = obj_StockChart.GetDataValue(3, i)
-            item['외국인현보유수량'] = obj_StockChart.GetDataValue(4, i)
-            item['외국인현보유비율(%)'] = obj_StockChart.GetDataValue(5, i)
-            item['기관순매수'] = obj_StockChart.GetDataValue(6, i)
-            item['기관누적순매수'] = obj_StockChart.GetDataValue(7, i)
+            item['고가'] = obj_StockChart.GetDataValue(2, i)
+            item['저가'] = obj_StockChart.GetDataValue(3, i)
+            item['종가'] = obj_StockChart.GetDataValue(4, i)
+            item['거래량'] = obj_StockChart.GetDataValue(5, i)
+            item['외국인현보유수량'] = obj_StockChart.GetDataValue(6, i)
+            item['외국인현보유비율(%)'] = obj_StockChart.GetDataValue(7, i)
+            item['기관순매수'] = obj_StockChart.GetDataValue(8, i)
+            item['기관누적순매수'] = obj_StockChart.GetDataValue(9, i)
 
             items.append(item)
             
@@ -154,7 +156,6 @@ def main():
     # 추출한 데이터 수
     extract_data_num = 2000
 
-    to_excel_data = []
 
     # 2021. 02. 07 기준 국내 시가총액 1 ~ 20위
     code_list = ['A005930', # 삼성전자
@@ -162,7 +163,7 @@ def main():
                      'A051910', # LG화학
                      'A005935', # 삼성전자우
                      'A035420', # NAVER
-                    #  'A207940', # 삼성바이오로직스
+                     'A207940', # 삼성바이오로직스
                      'A005380', # 현대차
                      'A006400', # 삼성SDI
                      'A068270', # 셀트리온
@@ -181,6 +182,7 @@ def main():
     
     for code in code_list:
         
+        to_excel_data = []
         print('----- Start [%s] -----' % code)
 
         data_7254 = call_CpSvr7254(code, extract_data_num, today_date)
@@ -191,13 +193,14 @@ def main():
             # print(data)
             to_excel_data.append(data)
         
+
+        df = pd.DataFrame(to_excel_data)
+        print(df)
+
+        df.to_excel('data_%s_%s.xlsx' % (code, today_date))
+        print('----- make excel -----')
         print('----- Finish [%s] -----' % code)
-
-    df = pd.DataFrame(to_excel_data)
-    print(df)
-
-    df.to_excel('data_%s.xlsx' % today_date)
-    
+        
 
     return
 
